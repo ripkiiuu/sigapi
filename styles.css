@@ -1234,3 +1234,252 @@ main {
     line-height: 1.7;
   }
 }
+
+/* Small-screen polish */
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .header-top {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .menu-toggle {
+    flex: 0 0 40px;
+  }
+
+  .wordmark {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .wordmark div {
+    font-size: clamp(28px, 9vw, 34px);
+  }
+
+  .wordmark small {
+    max-width: 230px;
+    font-size: 8px;
+    line-height: 1.45;
+    letter-spacing: 0.09em;
+  }
+
+  .header-bottom-inner {
+    padding: 0 16px;
+  }
+
+  .site-header.nav-open .header-bottom-inner {
+    padding: 14px 16px 18px;
+  }
+
+  .main-nav {
+    gap: 0;
+  }
+
+  .main-nav a {
+    display: block;
+    padding: 12px 0;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .main-nav a:last-child {
+    border-bottom: 0;
+  }
+
+  .breaking-bar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  .breaking-bar span {
+    flex: 1 1 180px;
+  }
+
+  .breaking-bar a {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .hero-news {
+    margin-top: 18px;
+    padding: 0 16px;
+    gap: 16px;
+  }
+
+  .hero-image {
+    height: min(590px, 128vw);
+    min-height: 430px;
+  }
+
+  .hero-story {
+    padding: 22px 20px;
+  }
+
+  .hero-story h1 {
+    font-size: clamp(30px, 8.5vw, 42px);
+  }
+
+  .hero-story p {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .story-meta {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .hero-side {
+    padding: 20px;
+  }
+
+  .side-story {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .side-story img,
+  .side-placeholder {
+    width: 64px;
+    height: 64px;
+  }
+
+  .side-story strong {
+    font-size: 14px;
+  }
+
+  .content-section {
+    padding: 42px 16px;
+  }
+
+  .section-bar {
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+
+  .section-bar h2 {
+    font-size: clamp(30px, 9vw, 36px);
+  }
+
+  .section-bar a {
+    font-size: 13px;
+  }
+
+  .news-grid,
+  .small-news-grid,
+  .editor-grid,
+  #berita-komunitas .editor-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .lead-card {
+    height: 360px;
+  }
+
+  .card-overlay {
+    padding: 20px;
+  }
+
+  .card-overlay h3 {
+    font-size: 25px;
+  }
+
+  .news-card img,
+  .news-graphic {
+    height: 170px;
+  }
+
+  .learning-banner,
+  .action-section {
+    width: calc(100% - 32px);
+    margin: 16px;
+    padding: 30px 22px;
+    border-radius: var(--radius-md);
+  }
+
+  .learning-banner h2,
+  .action-section h2 {
+    font-size: clamp(30px, 9vw, 42px);
+  }
+
+  .banner-button,
+  .emergency-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .photo-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .photo-row img {
+    height: 180px;
+  }
+
+  .photo-row figcaption {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .fact-grid,
+  .check-section {
+    gap: 24px;
+  }
+
+  .fact-card {
+    padding: 26px 22px;
+  }
+
+  .fact-card strong {
+    font-size: 27px;
+  }
+
+  .fact-copy h3,
+  .check-section h2 {
+    font-size: 34px;
+  }
+
+  .checklist {
+    padding: 18px;
+  }
+
+  .checklist label {
+    gap: 10px;
+    padding: 13px 0;
+    font-size: 14px;
+  }
+
+  .site-footer {
+    padding: 42px 16px 22px;
+  }
+
+  .footer-inner {
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+
+  .footer-note {
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 20px;
+    font-size: 12px;
+  }
+
+  .article-reader-inner {
+    width: min(100% - 32px, 920px);
+  }
+
+  .article-reader-heading h1 {
+    font-size: clamp(32px, 10vw, 42px);
+  }
+}
