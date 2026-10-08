@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="SIGAP API, berita dan panduan kesiapsiagaan kebakaran."
+    />
+    <title>SIGAP API | Berita Kesiapsiagaan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="header-top">
+          <button
+            class="icon-button menu-toggle"
+            aria-label="Buka menu"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+          <a class="wordmark" href="#top">
+            <div>SIG<span>API</span></div>
+            <small>Sistem Informasi dan Gerak Antisipasi Kebakaran</small>
+          </a>
+          <div class="header-actions">
+            <button class="icon-button theme-toggle" aria-label="Ubah tampilan">
+              ☼</button
+            ><a href="admin.html" title="Admin Panel">Admin</a
+            ><a class="subscribe" href="#siap">Siap Bersama</a>
+          </div>
+        </div>
+        <div class="header-bottom">
+          <div class="header-bottom-inner">
+            <button class="search-button" aria-label="Cari berita">⌕</button>
+            <nav class="main-nav" aria-label="Navigasi utama">
+              <a class="active" href="#top">Beranda</a>
+              <a href="#terkini">Terkini</a>
+              <a href="#desa-ende">Lingkungan</a>
+              <a href="#cegah">Pencegahan</a>
+              <a href="#bertindak">Sigap Api</a>
+              <a href="#siap">Kesiapsiagaan</a>
+              <a href="#media">Media</a>
+              <!-- Mobile Actions -->
+              <a
+                href="admin.html"
+                class="mobile-only-link"
+                style="color: var(--primary)"
+                >Masuk Dashboard Admin</a
+              >
+              <a
+                href="#"
+                class="mobile-only-link theme-toggle-mobile"
+                style="color: var(--text-main)"
+                >Ubah Tema (Terang/Gelap)</a
+              >
+            </nav>
+          </div>
+        </div>
+      </header>
+      <div class="search-panel" aria-hidden="true">
+        <label for="site-search">Cari di SIGAP API</label>
+        <input
+          id="site-search"
+          type="search"
+          placeholder="Cari artikel, panduan, atau topik..."
+        />
+        <div class="search-results" id="search-results"></div>
+      </div>
+      <main id="top">
+        <div class="breaking-bar">
+          <strong>INFO SIGAP</strong
+          ><span>Kenali jalur evakuasi di lingkunganmu hari ini.</span
+          ><a href="#siap">Baca panduan →</a>
+        </div>
+        <section class="hero-news">
+          <div class="hero-image">
+            <img
+              src="picture/desa ende v2.jpg"
+              alt="Rumah tradisional di Desa Ende"
+            />
+            <div class="hero-image-shade"></div>
+            <div class="hero-story">
+              <span class="label label-red">LAPORAN UTAMA</span>
+              <h1>
+                Mengenal Desa Ende: menjaga tradisi, menyiapkan keselamatan
+              </h1>
+              <p>
+                Melihat lebih dekat karakter bangunan, ruang berkumpul, dan
+                kesiapsiagaan masyarakat Desa Wisata Sasak Ende.
+              </p>
+              <span class="story-meta"
+                >14 SEPTEMBER 2026 &nbsp; / &nbsp; LINGKUNGAN</span
+              >
+            </div>
+          </div>
+          <aside class="hero-side">
+            <div class="side-heading">
+              <span>BERITA TERKINI</span><a href="#terkini">Lihat semua →</a>
+            </div>
+            <a class="side-story" href="#desa-ende"
+              ><img
+                src="picture/gerbang desa ende.jpeg"
+                alt="Gerbang Desa Wisata Sasak Ende"
+              /><span
+                ><b>Lingkungan</b
+                ><strong
+                  >Gerbang desa dan pentingnya mengenali titik kumpul</strong
+                ><small>Hari ini, 09.24</small></span
+              ></a
+            ><a class="side-story" href="#cegah"
+              ><div class="side-placeholder orange">⌁</div>
+              <span
+                ><b>Pencegahan</b
+                ><strong
+                  >5 kebiasaan sederhana untuk rumah yang lebih aman</strong
+                ><small>Kemarin, 16.40</small></span
+              ></a
+            ><a class="side-story" href="#bertindak"
+              ><div class="side-placeholder dark">!</div>
+              <span
+                ><b>Darurat</b
+                ><strong
+                  >Apa yang harus dilakukan saat api mulai membesar?</strong
+                ><small>12 Sep 2026</small></span
+              ></a
+            ><a class="side-story" href="#siap"
+              ><div class="side-placeholder green">✓</div>
+              <span
+                ><b>Kesiapsiagaan</b
+                ><strong>Sudahkah keluarga punya rencana evakuasi?</strong
+                ><small>11 Sep 2026</small></span
+              ></a
+            >
+          </aside>
+        </section>
+        <section class="content-section" id="terkini">
+          <div class="section-bar">
+            <h2>Berita terbaru</h2>
+            <a href="#media">Semua artikel →</a>
+          </div>
+          <div class="news-grid">
+            <article class="lead-card">
+              <img
+                src="picture/peresean desa ende.jpeg"
+                alt="Peresean di Desa Ende"
+              />
+              <div class="card-overlay">
+                <span class="label label-dark">BUDAYA & LINGKUNGAN</span>
+                <h3>Ruang berkumpul warga juga bisa menjadi ruang aman</h3>
+                <small>14 Sep 2026 &nbsp; / &nbsp; 4 min baca</small>
+              </div>
+            </article>
+            <div class="small-news-grid">
+              <article class="news-card">
+                <img
+                  src="picture/gerbang desa ende.jpeg"
+                  alt="Gerbang Desa Ende"
+                />
+                <div class="news-card-content">
+                  <span class="label label-red">LINGKUNGAN</span>
+                  <h3>
+                    Kenali karakter desamu sebelum membuat rencana evakuasi
+                  </h3>
+                  <p>
+                    Jalur keluar, titik kumpul, dan akses bantuan perlu
+                    diketahui bersama.
+                  </p>
+                </div>
+              </article>
+              <article class="news-card">
+                <div class="news-graphic graphic-yellow">✦</div>
+                <div class="news-card-content">
+                  <span class="label label-dark">PENCEGAHAN</span>
+                  <h3>Kabel panas adalah tanda yang tidak boleh diabaikan</h3>
+                  <p>
+                    Periksa sumber listrik sebelum masalah kecil menjadi bahaya.
+                  </p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+        <section
+          class="content-section"
+          id="berita-komunitas"
+          style="display: none"
+        >
+          <div class="section-bar">
+            <h2>Berita Komunitas</h2>
+            <a href="admin.html">Unggah Berita →</a>
+          </div>
+          <div class="editor-grid" id="dynamic-news-container">
+            <!-- Dynamic news will be appended here -->
+          </div>
+        </section>
+        <section class="learning-banner" id="cegah">
+          <div>
+            <span class="label label-light">PANDUAN SIGAP API</span>
+            <h2>Belajar mencegah kebakaran<br /><em>mulai dari rumah.</em></h2>
+            <p>
+              Materi singkat dan praktis untuk kamu, keluarga, dan lingkungan.
+            </p>
+          </div>
+          <a class="banner-button" href="#siap">Mulai belajar <b>→</b></a>
+          <div class="banner-lines"></div>
+        </section>
+        <section class="content-section editor-section">
+          <div class="section-bar">
+            <h2>Pilihan editor</h2>
+            <a href="#top">Lihat semua →</a>
+          </div>
+          <div class="editor-grid">
+            <article class="editor-card">
+              <img
+                src="picture/desa ende.jpg"
+                alt="Rumah tradisional Desa Ende"
+              />
+              <div class="editor-card-content">
+                <span class="label label-dark">MITIGASI DESA</span>
+                <h3>
+                  Material alami dan risiko kebakaran: apa yang perlu disiapkan?
+                </h3>
+                <small>12 Sep 2026 &nbsp; / &nbsp; 5 min baca</small>
+              </div>
+            </article>
+            <article class="editor-card">
+              <img
+                src="picture/peresean v2 desa ende.jpg"
+                alt="Warga Desa Ende"
+              />
+              <div class="editor-card-content">
+                <span class="label label-dark">KELOMPOK WARGA</span>
+                <h3>Ketika seluruh warga tahu harus ke mana</h3>
+                <small>10 Sep 2026 &nbsp; / &nbsp; 3 min baca</small>
+              </div>
+            </article>
+            <article class="editor-card">
+              <div class="news-graphic graphic-green">✔</div>
+              <div class="editor-card-content">
+                <span class="label label-red">CHECKLIST</span>
+                <h3>5 hal yang harus ada dalam rencana keluarga</h3>
+                <small>08 Sep 2026 &nbsp; / &nbsp; 4 min baca</small>
+              </div>
+            </article>
+            <aside class="worth-reading">
+              <span class="label label-red">WAJIB DIBACA</span>
+              <h3>Jangan panik.<br /><em>Kenali langkahnya.</em></h3>
+              <a href="#bertindak">Baca panduan darurat →</a>
+            </aside>
+          </div>
+        </section>
+        <section class="action-section" id="bertindak">
+          <div>
+            <span class="label label-light">AKSES CEPAT</span>
+            <h2>Kebakaran terjadi.<br /><em>Lakukan ini.</em></h2>
+            <p>
+              Tetap tenang, beri peringatan, segera evakuasi, dan hubungi
+              bantuan.
+            </p>
+          </div>
+          <a class="emergency-button" href="tel:113"
+            >Hubungi Damkar <b>113</b> <span>→</span></a
+          >
+        </section>
+        <section class="content-section village-strip" id="desa-ende">
+          <div class="section-bar">
+            <div>
+              <span class="label label-red">DOKUMENTASI LAPANGAN</span>
+              <h2>Desa Ende dalam gambar</h2>
+            </div>
+            <p>
+              Setiap lingkungan punya cerita, karakter, dan cara sendiri untuk
+              bersiap.
+            </p>
+          </div>
+          <div class="photo-row">
+            <figure>
+              <img
+                src="picture/gerbang desa ende.jpeg"
+                alt="Gerbang Desa Wisata Sasak Ende"
+              />
+              <figcaption>Desa Wisata Sasak Ende</figcaption>
+            </figure>
+            <figure>
+              <img
+                src="picture/desa ende.jpg"
+                alt="Rumah tradisional Desa Ende"
+              />
+              <figcaption>Rumah tradisional</figcaption>
+            </figure>
+            <figure>
+              <img
+                src="picture/peresean desa ende.jpeg"
+                alt="Pertunjukan peresean"
+              />
+              <figcaption>Ruang budaya warga</figcaption>
+            </figure>
+            <figure>
+              <img
+                src="picture/peresean v2 desa ende.jpg"
+                alt="Kegiatan warga Desa Ende"
+              />
+              <figcaption>Warga dan ruang terbuka</figcaption>
+            </figure>
+          </div>
+        </section>
+        <section class="content-section facts-section" id="media">
+          <div class="section-bar">
+            <h2>Fakta singkat</h2>
+            <a href="#media">Jelajahi topik →</a>
+          </div>
+          <div class="fact-grid">
+            <button class="fact-card" id="myth-card">
+              <span class="label label-dark myth-tag">MITOS ↗</span
+              ><strong id="myth-text"
+                >Semua kebakaran dapat dipadamkan dengan air.</strong
+              ><small class="myth-hint">Ketuk untuk melihat faktanya</small>
+            </button>
+            <div class="fact-copy">
+              <span class="label label-red">SIGAP API</span>
+              <h3>Informasi yang benar membuat kita bertindak lebih aman.</h3>
+              <p>
+                Gunakan panduan ini sebagai bekal. Saat keadaan darurat,
+                keselamatan diri dan orang di sekitar selalu menjadi prioritas.
+              </p>
+              <a href="#siap">Periksa kesiapanmu →</a>
+            </div>
+          </div>
+        </section>
+        <section class="check-section content-section" id="siap">
+          <div>
+            <span class="label label-red">CHECKLIST PRIBADI</span>
+            <h2>Seberapa siap<br />kamu hari ini?</h2>
+            <p>Centang hal yang sudah kamu dan keluargamu siapkan.</p>
+          </div>
+          <div class="checklist" id="checklist">
+            ><label
+              ><input type="checkbox" /><i>✓</i
+              ><span>Mengetahui jalur keluar rumah</span></label
+            ><label
+              ><input type="checkbox" /><i>✓</i
+              ><span>Menentukan titik kumpul</span></label
+            ><label
+              ><input type="checkbox" /><i>✓</i
+              ><span>Menyimpan kontak darurat</span></label
+            ><label
+              ><input type="checkbox" /><i>✓</i
+              ><span>Membahas rencana evakuasi</span></label
+            ><label
+              ><input type="checkbox" /><i>✓</i
+              ><span>Mengetahui lokasi APAR</span></label
+            >
+            <div class="progress-line"><span id="progress-bar"></span></div>
+            <div class="progress-meta">
+              <span id="progress-label">0 dari 5 selesai</span
+              ><span id="progress-percent">0%</span>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer" id="darurat">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <a class="wordmark" href="#top">
+              <div>SIGAP<span>API</span></div>
+              <small>Sistem Informasi dan Gerak Antisipasi Kebakaran</small>
+            </a>
+            <p>
+              Berita, panduan, dan cerita kesiapsiagaan kebakaran untuk semua.
+            </p>
+          </div>
+          <div class="footer-links">
+            <b>Jelajahi</b>
+            <a href="#terkini">Berita terkini</a>
+            <a href="#desa-ende">Lingkungan</a>
+            <a href="#cegah">Pencegahan</a>
+          </div>
+          <div class="footer-links">
+            <b>Bantuan</b>
+            <a href="#bertindak">Saat kebakaran</a>
+            <a href="#siap">Checklist</a>
+            <a href="tel:113">Damkar 113</a>
+          </div>
+        </div>
+        <div class="footer-note">
+          <span>© SIGAP API 2026</span><span>Dibuat untuk saling menjaga.</span>
+        </div>
+      </footer>
+    </div>
+    <article id="article-reader" class="article-reader" aria-hidden="true">
+      <div class="article-reader-inner">
+        <button
+          class="article-back"
+          type="button"
+          aria-label="Kembali ke berita"
+        >
+          ← Kembali ke berita
+        </button>
+        <div class="article-reader-heading">
+          <span class="label label-red" id="modal-category">KATEGORI</span>
+          <h1 id="modal-title">Judul Artikel</h1>
+          <small id="modal-date">Tanggal</small>
+        </div>
+        <img id="modal-image" src="" alt="Foto Berita" />
+        <div class="article-reader-text" id="modal-text">Isi artikel...</div>
+      </div>
+    </article>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
