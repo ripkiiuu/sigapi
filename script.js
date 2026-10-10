@@ -1,228 +1,447 @@
-const checklist = document.querySelectorAll("#checklist input");
-const progressBar = document.querySelector("#progress-bar");
-const progressLabel = document.querySelector("#progress-label");
-const progressPercent = document.querySelector("#progress-percent");
+/* ==========================================================================
+   SIGAPI — INTERAKSI SITUS PUBLIK
+   ========================================================================== */
+(function () {
+  "use strict";
 
-function updateProgress() {
-  if (!progressBar) return;
-  const completed = [...checklist].filter((item) => item.checked).length;
-  const percent = Math.round((completed / checklist.length) * 100);
-  progressBar.style.width = `${percent}%`;
-  progressLabel.textContent = `${completed} dari ${checklist.length} selesai`;
-  progressPercent.textContent = `${percent}%`;
-  localStorage.setItem(
-    "sigap-checklist",
-    JSON.stringify([...checklist].map((item) => item.checked)),
-  );
-}
+  const $ = (sel, scope) => (scope || document).querySelector(sel);
+  const $$ = (sel, scope) =>
+    Array.from((scope || document).querySelectorAll(sel));
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
 
-const savedChecklist = JSON.parse(
-  localStorage.getItem("sigap-checklist") || "[]",
-);
-checklist.forEach((item, index) => {
-  item.checked = savedChecklist[index] || false;
-  item.addEventListener("change", updateProgress);
-});
-updateProgress();
+  /* ------------------------------------------------------------------------
+     TEMA TERANG / GELAP
+     ---------------------------------------------------------------------- */
+  const Theme = {
+    key: "sigap-theme",
+    root: document.documentElement,
+    toggle: $("#theme-toggle"),
 
-const mythCard = document.querySelector("#myth-card");
-const mythText = document.querySelector("#myth-text");
-const mythTag = mythCard ? mythCard.querySelector(".myth-tag") : null;
-const mythHint = mythCard ? mythCard.querySelector(".myth-hint") : null;
-let showingFact = false;
+    current() {
+      return this.root.getAttribute("data-theme") === "dark"
+        ? "dark"
+        : "light";
+    },
 
-if (mythCard) {
-  mythCard.addEventListener("click", () => {
-    showingFact = !showingFact;
-    mythCard.classList.toggle("is-fact", showingFact);
-    mythTag.firstChild.textContent = showingFact ? "FAKTA " : "MITOS ";
-    mythText.textContent = showingFact
-      ? "Tidak semua kebakaran aman dipadamkan dengan air. Sesuaikan tindakan dengan sumber apinya."
-      : "Semua kebakaran dapat dipadamkan dengan air.";
-    mythHint.textContent = showingFact
-      ? "Ketuk untuk kembali ke mitos"
-      : "Ketuk untuk melihat faktanya";
-  });
-}
+    apply(theme) {
+      this.root.setAttribute("data-theme", theme);
+      const meta = $('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", theme === "dark" ? "#070d15" : "#0a1523");
+      if (this.toggle) {
+        this.toggle.setAttribute(
+          "aria-label",
+          theme === "dark" ? "Aktifkan tampilan terang" : "Aktifkan tampilan gelap",
+        );
+        this.toggle.setAttribute(
+          "aria-pressed",
+          String(theme === "dark"),
+        );
+      }
+      try {
+        localStorage.setItem(this.key, theme);
+      } catch (e) {}
+    },
 
-// Mobile Menu
-const menuToggle = document.querySelector(".menu-toggle");
-const siteHeader = document.querySelector(".site-header");
-if (menuToggle && siteHeader) {
-  menuToggle.addEventListener("click", () => {
-    const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
-    menuToggle.setAttribute("aria-expanded", String(!isOpen));
-    siteHeader.classList.toggle("nav-open", !isOpen);
-  });
+    init() {
+      this.apply(this.current());
+      if (this.toggle) {
+        this.toggle.addEventListener("click", () =>
+          this.apply(this.current() === "dark" ? "light" : "dark"),
+        );
+      }
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          let stored = null;
+          try {
+            stored = localStorage.getItem(this.key);
+          } catch (err) {}
+          if (!stored) this.apply(e.matches ? "dark" : "light");
+        });
+    },
+  };
+  Theme.init();
 
-  document.querySelectorAll(".main-nav a").forEach((link) => {
-    link.addEventListener("click", () => {
-      menuToggle.setAttribute("aria-expanded", "false");
-      siteHeader.classList.remove("nav-open");
-    });
-  });
-}
+  /* ------------------------------------------------------------------------
+     HEADER — sticky shadow + scroll spy navigasi
+     ---------------------------------------------------------------------- */
+  const header = $("#site-header");
+  if (header) {
+    const onScroll = () =>
+      header.setAttribute("data-stuck", String(window.scrollY > 8));
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
 
-// Dark Theme
-const themeToggle = document.querySelector(".theme-toggle");
-const savedTheme = localStorage.getItem("sigap-theme");
-if (savedTheme === "dark") document.body.classList.add("dark-theme");
-
-if (themeToggle) {
-  themeToggle.addEventListener("click", () => {
-    const darkMode = document.body.classList.toggle("dark-theme");
-    localStorage.setItem("sigap-theme", darkMode ? "dark" : "light");
-    themeToggle.textContent = darkMode ? "☀" : "☼";
-  });
-}
-
-// Search
-const searchButton = document.querySelector(".search-button");
-const searchPanel = document.querySelector(".search-panel");
-const searchInput = document.querySelector("#site-search");
-const searchResults = document.querySelector("#search-results");
-const searchableItems = [
-  ...document.querySelectorAll(
-    ".hero-story h1, .side-story strong, .news-card h3, .editor-card h3, .photo-row figcaption, .fact-copy h3",
-  ),
-];
-
-if (searchButton && searchPanel) {
-  searchButton.addEventListener("click", () => {
-    const isOpen = searchPanel.classList.toggle("open");
-    searchPanel.setAttribute("aria-hidden", String(!isOpen));
-    if (isOpen) searchInput.focus();
-  });
-
-  searchInput.addEventListener("input", () => {
-    const query = searchInput.value.trim().toLowerCase();
-    searchResults.innerHTML = "";
-    if (!query) return;
-    const matches = searchableItems.filter((item) =>
-      item.textContent.toLowerCase().includes(query),
+  const navLinks = $$(".nav__link");
+  const sections = navLinks
+    .map((l) => $(l.getAttribute("href")))
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && sections.length) {
+    const spy = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          navLinks.forEach((l) =>
+            l.setAttribute(
+              "aria-current",
+              String(l.getAttribute("href") === "#" + entry.target.id),
+            ),
+          );
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
     );
-    matches.slice(0, 6).forEach((item) => {
-      const result = document.createElement("a");
-      result.href = `#${item.closest("section, article")?.id || "top"}`;
-      result.textContent = item.textContent.trim();
-      result.addEventListener("click", () => {
-        searchPanel.classList.remove("open");
-        searchPanel.setAttribute("aria-hidden", "true");
-      });
-      searchResults.appendChild(result);
-    });
-    if (!matches.length)
-      searchResults.innerHTML = "<span>Tidak ada artikel yang cocok.</span>";
+    sections.forEach((s) => spy.observe(s));
+  }
+
+  /* ------------------------------------------------------------------------
+     DRAWER NAVIGASI (mobile)
+     ---------------------------------------------------------------------- */
+  const drawer = $("#drawer");
+  const menuToggle = $("#menu-toggle");
+  function setDrawer(open) {
+    if (!drawer || !menuToggle) return;
+    drawer.setAttribute("data-open", String(open));
+    menuToggle.setAttribute("aria-expanded", String(open));
+    menuToggle.setAttribute(
+      "aria-label",
+      open ? "Tutup menu" : "Buka menu",
+    );
+    document.body.style.overflow = open ? "hidden" : "";
+    const icon = menuToggle.querySelector("use");
+    if (icon) icon.setAttribute("href", open ? "#i-close" : "#i-menu");
+    if (open) {
+      const first = $(".drawer__link", drawer);
+      if (first) first.focus({ preventScroll: true });
+    }
+  }
+  if (menuToggle) {
+    menuToggle.addEventListener("click", () =>
+      setDrawer(drawer.getAttribute("data-open") !== "true"),
+    );
+  }
+  $$("[data-close-drawer]").forEach((el) =>
+    el.addEventListener("click", () => setDrawer(false)),
+  );
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && drawer?.getAttribute("data-open") === "true") {
+      setDrawer(false);
+      menuToggle?.focus();
+    }
   });
-}
 
-// Render dynamic news from the shared Supabase database
-const dynamicContainer = document.getElementById("dynamic-news-container");
-const dynamicSection = document.getElementById("berita-komunitas");
-if (dynamicContainer && dynamicSection) {
-  async function loadDynamicNews() {
-    const { data: dynamicNews, error } = await window.sigapSupabase
-      .from("news")
-      .select("*")
-      .order("created_at", { ascending: false });
+  /* ------------------------------------------------------------------------
+     ALERT BAR — rotasi tips singkat
+     ---------------------------------------------------------------------- */
+  const tickerItems = $$("#alert-ticker .alert-bar__item");
+  if (tickerItems.length > 1 && !reduceMotion) {
+    let idx = 0;
+    setInterval(() => {
+      tickerItems[idx].removeAttribute("data-active");
+      idx = (idx + 1) % tickerItems.length;
+      tickerItems[idx].setAttribute("data-active", "true");
+    }, 6000);
+  }
 
-    if (error) {
-      console.error("Gagal memuat berita komunitas:", error.message);
-      return;
+  /* ------------------------------------------------------------------------
+     PENCARIAN
+     ---------------------------------------------------------------------- */
+  const search = $("#search");
+  const searchToggle = $("#search-toggle");
+  const searchPanel = $("#search-panel");
+  const searchInput = $("#site-search");
+  const searchResults = $("#search-results");
+  const searchCount = $("#search-count");
+
+  function closeSearch() {
+    if (!search) return;
+    search.setAttribute("data-open", "false");
+    searchToggle?.setAttribute("aria-expanded", "false");
+  }
+  if (searchToggle) {
+    searchToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = search.getAttribute("data-open") !== "true";
+      search.setAttribute("data-open", String(open));
+      searchToggle.setAttribute("aria-expanded", String(open));
+      if (open) searchInput?.focus();
+    });
+  }
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.trim();
+      if (!q) {
+        searchResults.innerHTML = "";
+        if (searchCount) searchCount.textContent = "";
+        return;
+      }
+      const matches = sigapSearch(q);
+      if (searchCount)
+        searchCount.textContent = `${matches.length} hasil`;
+      searchResults.innerHTML = matches.length
+        ? matches
+            .map(
+              (a) => `
+            <a class="search__result" href="#" data-article="${a.id}">
+              <span>${a.section}</span>
+              <b>${a.title}</b>
+            </a>`,
+            )
+            .join("")
+        : `<div class="search__empty">Tidak ada hasil untuk “${q}”.</div>`;
+      bindArticleTriggers(searchResults);
+    });
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeSearch();
+        searchToggle?.focus();
+      }
+    });
+  }
+  document.addEventListener("click", (e) => {
+    if (search && !search.contains(e.target)) closeSearch();
+  });
+  document.addEventListener("keydown", (e) => {
+    const tag = (e.target.tagName || "").toLowerCase();
+    if (e.key === "/" && tag !== "input" && tag !== "textarea") {
+      e.preventDefault();
+      search.setAttribute("data-open", "true");
+      searchToggle?.setAttribute("aria-expanded", "true");
+      searchInput?.focus();
+    }
+  });
+
+  /* ------------------------------------------------------------------------
+     MITOS / FAKTA
+     ---------------------------------------------------------------------- */
+  const mythCard = $("#myth-card");
+  if (mythCard) {
+    const stateEl = $("#myth-state");
+    const textEl = $("#myth-text");
+    const hintEl = $("#myth-hint");
+    const MYTH = "Semua kebakaran dapat dipadamkan dengan air.";
+    const FACT =
+      "Tidak semua kebakaran aman dipadamkan dengan air. Sesuaikan tindakan dengan sumber apinya.";
+    mythCard.addEventListener("click", () => {
+      const isFact = mythCard.getAttribute("data-state") === "fact";
+      mythCard.setAttribute("data-state", isFact ? "myth" : "fact");
+      if (stateEl) stateEl.textContent = isFact ? "Mitos" : "Fakta";
+      if (textEl) textEl.textContent = isFact ? MYTH : FACT;
+      if (hintEl)
+        hintEl.textContent = isFact
+          ? "Ketuk untuk melihat faktanya"
+          : "Ketuk untuk kembali ke mitos";
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+     CHECKLIST KESIAPSIAGAAN
+     ---------------------------------------------------------------------- */
+  const checkBoxes = $$("#checklist input");
+  const bar = $("#progress-bar");
+  const label = $("#progress-label");
+  const percent = $("#progress-percent");
+
+  function updateProgress() {
+    const total = checkBoxes.length;
+    const done = checkBoxes.filter((b) => b.checked).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    if (bar) bar.style.width = pct + "%";
+    if (label) label.textContent = `${done} dari ${total} selesai`;
+    if (percent) percent.textContent = pct + "%";
+    try {
+      localStorage.setItem(
+        "sigap-checklist",
+        JSON.stringify(checkBoxes.map((b) => b.checked)),
+      );
+    } catch (e) {}
+  }
+  checkBoxes.forEach((b) => b.addEventListener("change", updateProgress));
+  let saved = [];
+  try {
+    saved = JSON.parse(localStorage.getItem("sigap-checklist") || "[]");
+  } catch (e) {}
+  checkBoxes.forEach((b, i) => {
+    b.checked = saved[i] === true;
+  });
+  updateProgress();
+
+  const resetBtn = $("#reset-checklist");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      checkBoxes.forEach((b) => (b.checked = false));
+      updateProgress();
+      Toast.show({
+        kind: "info",
+        title: "Checklist direset",
+        message: "Semua centang kesiapsiagaan telah dikosongkan.",
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+     ARTICLE READER
+     ---------------------------------------------------------------------- */
+  const reader = $("#article-reader");
+  const rBack = $("#reader-back");
+  const rClose = $("#reader-close");
+  const rTitle = $("#reader-title");
+  const rCategory = $("#reader-category");
+  const rMeta = $("#reader-meta");
+  const rSection = $("#reader-section");
+  const rImage = $("#reader-image");
+  const rFigure = $("#reader-figure");
+  const rText = $("#reader-text");
+  const rRelated = $("#reader-related");
+  const rProgress = $("#reader-progress");
+  let lastFocus = null;
+
+  function findArticle(id) {
+    return (window.SIGAP_ARTICLES || []).find((a) => a.id === id);
+  }
+
+  function openArticle(source) {
+    /* Menerima id artikel redaksi atau objek artikel komunitas siap pakai */
+    let base =
+      typeof source === "string" ? findArticle(source) : source;
+    if (!base || typeof base !== "object") return;
+    const related = (base.related || [])
+      .map((id) => (typeof id === "string" ? findArticle(id) : id))
+      .filter(Boolean)
+      .slice(0, 3);
+
+    if (rTitle) rTitle.textContent = base.title;
+    if (rCategory) rCategory.textContent = base.category || "Berita";
+    if (rSection) rSection.textContent = base.section || "SIGAPI";
+    if (rMeta) {
+      rMeta.innerHTML = [base.date, base.readTime]
+        .filter(Boolean)
+        .map((v) => `<span>${sigapEscape(v)}</span>`)
+        .join("");
+    }
+    if (rImage && rFigure) {
+      if (base.image) {
+        rImage.src = base.image;
+        rImage.alt = base.imageAlt || base.title;
+        rFigure.setAttribute("data-empty", "false");
+      } else {
+        rImage.removeAttribute("src");
+        rFigure.setAttribute("data-empty", "true");
+      }
+    }
+    if (rText) {
+      rText.innerHTML = base.body.map((p) => `<p>${p}</p>`).join("");
+    }
+    if (rRelated) {
+      rRelated.innerHTML = related.length
+        ? related
+            .map(
+              (a) => `
+          <button class="card card--surface" type="button" data-article="${a.id}">
+            <span class="card__media card__media--wide">
+              ${
+                a.image
+                  ? `<img src="${a.image}" alt="${a.imageAlt || a.title}" loading="lazy" decoding="async" width="1000" height="563" />`
+                  : `<span class="rail__glyph" style="width:100%;height:100%">
+                       <svg aria-hidden="true"><use href="#i-flame"/></svg></span>`
+              }
+            </span>
+            <span class="card__body">
+              <span class="card__kicker"><span class="tag tag--outline">${a.section}</span></span>
+              <span class="card__title" style="font-size:var(--fs-sm)">${a.title}</span>
+            </span>
+          </button>`,
+            )
+            .join("")
+        : `<p class="muted" style="font-size:var(--fs-sm)">Belum ada artikel lain.</p>`;
+      bindArticleTriggers(rRelated);
     }
 
-    if (dynamicNews && dynamicNews.length > 0) {
-      dynamicSection.style.display = "block";
-      dynamicNews.forEach((news) => {
-        const article = document.createElement("article");
-        article.className = "editor-card";
-        article.innerHTML = `
-          <img src="${news.image || "https://via.placeholder.com/300x165?text=No+Image"}" alt="News Image" onerror="this.src='https://via.placeholder.com/300x165?text=No+Image'">
-          <div class="editor-card-content">
-            <span class="label label-red"></span>
-            <h3></h3>
-            <p style="margin:10px 0; font-size:14px; color:var(--text-muted);"></p>
-            <small></small>
-          </div>
-        `;
-        article.querySelector(".label").textContent = news.category;
-        article.querySelector("h3").textContent = news.title;
-        article.querySelector("p").textContent = news.content;
-        article.querySelector("small").textContent = news.date;
-        dynamicContainer.appendChild(article);
-        attachDynamicNewsClick(article, news);
-      });
+    lastFocus = document.activeElement;
+    reader.setAttribute("data-open", "true");
+    reader.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    reader.scrollTop = 0;
+    rClose?.focus({ preventScroll: true });
+    if (!reduceMotion) {
+      try {
+        history.pushState({ sigapArticle: base.id || true }, "", "#artikel");
+      } catch (e) {}
     }
   }
 
-  loadDynamicNews();
-}
+  function closeArticle() {
+    if (!reader) return;
+    reader.setAttribute("data-open", "false");
+    reader.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (rProgress) rProgress.style.width = "0%";
+    if (location.hash === "#artikel" && !reduceMotion) history.back();
+    lastFocus?.focus?.({ preventScroll: true });
+  }
 
-const themeToggleMobile = document.querySelector(".theme-toggle-mobile");
-if (themeToggleMobile) {
-  themeToggleMobile.addEventListener("click", (e) => {
-    e.preventDefault();
-    const darkMode = document.body.classList.toggle("dark-theme");
-    localStorage.setItem("sigap-theme", darkMode ? "dark" : "light");
-    if (themeToggle) themeToggle.textContent = darkMode ? "?" : "�";
-  });
-}
-
-// Full-page article reader
-const articleReader = document.getElementById("article-reader");
-const articleBack = document.querySelector(".article-back");
-const mTitle = document.getElementById("modal-title");
-const mCategory = document.getElementById("modal-category");
-const mDate = document.getElementById("modal-date");
-const mImage = document.getElementById("modal-image");
-const mText = document.getElementById("modal-text");
-
-function openModal(title, category, date, imageSrc, content) {
-  if (!articleReader) return;
-  mTitle.textContent = title || "Tanpa Judul";
-  mCategory.textContent = category || "BERITA";
-  mDate.textContent = date || "";
-  mImage.src = imageSrc || "";
-  mImage.style.display = imageSrc ? "block" : "none";
-  mText.innerHTML = content || "<p>Isi berita tidak tersedia.</p>";
-  articleReader.classList.add("open");
-  articleReader.setAttribute("aria-hidden", "false");
-  document.querySelector(".page-shell").setAttribute("aria-hidden", "true");
-  window.scrollTo({ top: 0, behavior: "instant" });
-  history.pushState({ article: true }, "", "#artikel");
-}
-
-function closeArticle() {
-  if (!articleReader) return;
-  articleReader.classList.remove("open");
-  articleReader.setAttribute("aria-hidden", "true");
-  document.querySelector(".page-shell").setAttribute("aria-hidden", "false");
-  if (location.hash === "#artikel") history.back();
-}
-
-if (articleBack) {
-  articleBack.addEventListener("click", closeArticle);
-  window.addEventListener("popstate", () => {
-    if (location.hash !== "#artikel") {
-      articleReader.classList.remove("open");
-      articleReader.setAttribute("aria-hidden", "true");
-      document
-        .querySelector(".page-shell")
-        .setAttribute("aria-hidden", "false");
+  if (rBack) rBack.addEventListener("click", closeArticle);
+  if (rClose) rClose.addEventListener("click", closeArticle);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && reader?.getAttribute("data-open") === "true") {
+      closeArticle();
     }
   });
-}
-
-// Attach click to dynamic news in render function
-function attachDynamicNewsClick(articleElement, newsData) {
-  articleElement.style.cursor = "pointer";
-  articleElement.addEventListener("click", () => {
-    openModal(
-      newsData.title,
-      newsData.category,
-      newsData.date,
-      newsData.image,
-      `<p>${newsData.content}</p><p><em>(Berita ini diunggah dari Dashboard Admin)</em></p>`,
-    );
+  window.addEventListener("popstate", () => {
+    if (location.hash !== "#artikel" && reader) closeArticle();
   });
-}
+
+  /* Delegasi: semua elemen dengan data-article membuka pembaca artikel */
+  function bindArticleTriggers(scope) {
+    $$("[data-article]", scope || document).forEach((el) => {
+      if (el.dataset.bound) return;
+      el.dataset.bound = "true";
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        closeSearch();
+        openArticle(el.dataset.article);
+      });
+    });
+  }
+  bindArticleTriggers(document);
+
+  /* Ekspos API internal */
+  window.SIGAP_ARTICLES = window.SIGAP_ARTICLES || [];
+  window.SigapReader = { open: openArticle, close: closeArticle };
+
+  /* ------------------------------------------------------------------------
+     TOAST
+     ---------------------------------------------------------------------- */
+  const toastHost = $("#toasts");
+  const Toast = {
+    show({ kind = "info", title = "", message = "", timeout = 4200 }) {
+      if (!toastHost) return;
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.setAttribute("data-kind", kind);
+      el.setAttribute("role", kind === "error" ? "alert" : "status");
+      const icon =
+        kind === "success" ? "#i-check" : kind === "error" ? "#i-alert" : "#i-info";
+      el.innerHTML = `
+        <svg class="toast__icon" aria-hidden="true"><use href="${icon}"/></svg>
+        <div class="toast__body">
+          <span class="toast__title">${sigapEscape(title)}</span>
+          ${message ? `<span class="toast__msg">${sigapEscape(message)}</span>` : ""}
+        </div>
+        <button class="toast__close" type="button" aria-label="Tutup notifikasi">
+          <svg aria-hidden="true" style="width:14px;height:14px"><use href="#i-close"/></svg>
+        </button>`;
+      toastHost.appendChild(el);
+      const remove = () => {
+        el.setAttribute("data-leaving", "true");
+        setTimeout(() => el.remove(), 220);
+      };
+      $(".toast__close", el).addEventListener("click", remove);
+      if (timeout) setTimeout(remove, timeout);
+    },
+  };
+  window.SigapToast = Toast;
+})();
