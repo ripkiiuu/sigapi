@@ -642,12 +642,13 @@
     const input = $(inputId);
     const counter = $(counterId);
     if (!input || !counter) return;
-    const update = () => (counter.textContent = `${input.value.length} / ${max}`);
+    const render = (len) => (max ? `${len} / ${max}` : `${len} karakter`);
+    const update = () => (counter.textContent = render(input.value.length));
     input.addEventListener("input", update);
     update();
   }
   setCounter("#news-title", "#count-title", 140);
-  setCounter("#news-content", "#count-content", 1200);
+  setCounter("#news-content", "#count-content", null);
 
   function setInvalid(fieldId, invalid) {
     $(fieldId)?.setAttribute("data-invalid", String(Boolean(invalid)));
@@ -751,7 +752,7 @@
         drop?.setAttribute("data-filled", "false");
         if (dropPreview) dropPreview.removeAttribute("src");
         $("#count-title").textContent = "0 / 140";
-        $("#count-content").textContent = "0 / 1200";
+        $("#count-content").textContent = "0 karakter";
         if (formStatus)
           formStatus.textContent = "Berita berhasil dipublikasikan.";
         toast(
